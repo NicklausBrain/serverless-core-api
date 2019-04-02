@@ -1,12 +1,16 @@
 using System;
-using System.IO;
+using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.ObjectPool;
 
 namespace FunctionApp
 {
@@ -14,21 +18,31 @@ namespace FunctionApp
     {
         [FunctionName(nameof(WebAppProxy))]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]
+            [HttpTrigger(
+                AuthorizationLevel.Anonymous,
+                "get", "post","put", "patch",
+                Route = "{*any}")]
             HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
+            var services = new ServiceCollection();
+            services.AddSingleton(new DiagnosticListener(
+                "Microsoft.AspNetCore"));
+            services.AddSingleton<DiagnosticSource>(new DiagnosticListener(
+                "Microsoft.AspNetCore"));
+            services.AddSingleton<ObjectPoolProvider>(new DefaultObjectPoolProvider());
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            services.AddLogging();
+            services.AddMvcCore().AddApplicationPart(Assembly.Load("WebApplication"));
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            IServiceProvider serviceProvider = services.BuildServiceProvider();
+            var requestHandler = new ApplicationBuilder(serviceProvider).UseMvc().Build();
+
+            await requestHandler(req.HttpContext);
+
+            return (ActionResult)new OkObjectResult($"Hello, world");
         }
     }
 }
