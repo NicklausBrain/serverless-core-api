@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,9 @@ namespace WebApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddMvc()
+                .AddLogging()
+                .AddMvcCore()
+                .AddApplicationPart(Assembly.Load("WebApplication"))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -36,7 +39,7 @@ namespace WebApplication
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
