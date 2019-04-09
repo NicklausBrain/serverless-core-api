@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder.Internal;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -35,17 +36,19 @@ namespace FunctionApp
                 .AddEnvironmentVariables()
                 .Build();
 
+            var hostingEnvironment = new HostingEnvironment();
             var services = new ServiceCollection();
             services.AddSingleton(new DiagnosticListener(
                 "Microsoft.AspNetCore"));
             services.AddSingleton<DiagnosticSource>(new DiagnosticListener(
                 "Microsoft.AspNetCore"));
             services.AddSingleton<ObjectPoolProvider>(new DefaultObjectPoolProvider());
+            services.AddSingleton<IHostingEnvironment>(hostingEnvironment);
 
             var startup = new Startup(config.GetWebJobsRootConfiguration());
             startup.ConfigureServices(services);
             var appBuilder = new ApplicationBuilder(services.BuildServiceProvider());
-            startup.Configure(appBuilder, new HostingEnvironment());
+            startup.Configure(appBuilder, hostingEnvironment);
 
             var requestHandler = appBuilder.Build();
 
