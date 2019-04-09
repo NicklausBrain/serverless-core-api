@@ -51,7 +51,7 @@ namespace FunctionApp
 
             await requestHandler(req.HttpContext);
 
-            return (ActionResult)new OkObjectResult($"Hello, world");
+            return new ContentResult();
         }
     }
 }

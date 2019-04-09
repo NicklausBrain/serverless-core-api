@@ -21,7 +21,7 @@ namespace WebApplication
         {
             services
                 .AddLogging()
-                .AddMvcCore()
+                .AddMvc()
                 .AddApplicationPart(Assembly.Load("WebApplication"))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
