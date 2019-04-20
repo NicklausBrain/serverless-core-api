@@ -47,9 +47,11 @@ namespace FunctionApp
 
             var startup = new Startup(config.GetWebJobsRootConfiguration());
             startup.ConfigureServices(services);
-            var appBuilder = new ApplicationBuilder(services.BuildServiceProvider());
-            startup.Configure(appBuilder, hostingEnvironment);
 
+            var serviceProvider = services.BuildServiceProvider();
+            req.HttpContext.RequestServices = serviceProvider;
+            var appBuilder = new ApplicationBuilder(serviceProvider);
+            startup.Configure(appBuilder, hostingEnvironment);
             var requestHandler = appBuilder.Build();
 
             await requestHandler(req.HttpContext);
