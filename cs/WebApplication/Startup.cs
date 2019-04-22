@@ -23,8 +23,10 @@ namespace WebApplication
             services
                 .AddLogging()
                 .AddMvc()
-                .AddApplicationPart(Assembly.Load("WebApplication"))
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                // Explicitly add WebbApplication assembly as application part
+                // This is required because WebApplication isn't executing assembly
+                // when being hosted as Azure Function
+                .AddApplicationPart(Assembly.Load("WebApplication"));
 
             // Register the Swagger services
             services.AddSwaggerDocument();
