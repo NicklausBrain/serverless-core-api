@@ -3,18 +3,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder.Internal;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using WebApplication;
+using WebApp;
 using ExecutionContext = Microsoft.Azure.WebJobs.ExecutionContext;
 
-namespace FunctionApp
+namespace FuncApp
 {
     public static class WebAppProxy
     {
