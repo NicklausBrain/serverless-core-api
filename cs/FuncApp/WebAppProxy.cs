@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder.Internal;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -30,7 +31,7 @@ namespace FuncApp
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            var config = new ConfigurationBuilder()
+            var configRoot = new ConfigurationBuilder()
                 .SetBasePath(context.FunctionAppDirectory)
                 .AddEnvironmentVariables()
                 .Build();
@@ -41,13 +42,15 @@ namespace FuncApp
             };
 
             /* Add required services into DI container */
+            var config = configRoot.GetWebJobsRootConfiguration();
             var services = new ServiceCollection();
             services.AddSingleton<DiagnosticSource>(new DiagnosticListener("Microsoft.AspNetCore"));
             services.AddSingleton<ObjectPoolProvider>(new DefaultObjectPoolProvider());
             services.AddSingleton<IHostingEnvironment>(hostingEnvironment);
+            services.AddSingleton<IConfiguration>(config);
 
             /* Instantiate standard ASP.NET Core Startup class */
-            var startup = new Startup(config.GetWebJobsRootConfiguration());
+            var startup = new Startup(config);
 
             /* Add web app services into DI container */
             startup.ConfigureServices(services);
@@ -56,7 +59,7 @@ namespace FuncApp
             var serviceProvider = services.BuildServiceProvider();
 
             /* Initialize Application builder */
-            var appBuilder = new ApplicationBuilder(serviceProvider);
+            var appBuilder = new ApplicationBuilder(serviceProvider, new FeatureCollection());
 
             /* Configure the HTTP request pipeline */
             startup.Configure(appBuilder, hostingEnvironment);
