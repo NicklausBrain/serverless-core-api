@@ -24,7 +24,7 @@ namespace WebApp
                 // Explicitly add WebbApplication assembly as application part
                 // This is required because WebApplication isn't executing assembly
                 // when being hosted as Azure Function
-                .AddApplicationPart(Assembly.Load("WebApplication"));
+                .AddApplicationPart(Assembly.Load("WebApp"));
 
             // Register the Swagger services
             services.AddSwaggerDocument();
