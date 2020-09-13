@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,6 +28,8 @@ namespace WebApp
 				// This is required because WebApplication isn't executing assembly
 				// when being hosted as Azure Function
 				.AddApplicationPart(Assembly.Load("WebApp"));
+
+			services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 
 			// Register the Swagger services
 			services.AddSwaggerGen(c =>
